@@ -8,12 +8,18 @@ file: public/index.html
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CFCap Demo</title>
-    <!-- Pointing to /widget/widget.js as requested -->
-    <script src="/widget/widget.js"></script>
+    
+    <!-- 
+      1. Point to /widget/widget.js (handled by worker alias)
+      2. Use type="module" in case the downloaded file is ESM
+    -->
+    <script src="/widget/widget.js" type="module"></script>
+
     <style>
         body { font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: #f0f0f0; }
         .container { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; }
         h1 { margin-bottom: 1.5rem; }
+        cap-widget { display: block; margin: 0 auto; }
     </style>
 </head>
 <body>
@@ -21,14 +27,17 @@ file: public/index.html
 <div class="container">
     <h1>CFCap Demo</h1>
     
-    <!-- The Widget Container -->
-    <!-- data-cap-api-endpoint points to our Worker API -->
-    <div 
-        id="captcha-container"
+    <!-- 
+      Use <cap-widget> custom element.
+      data-cap-api-endpoint: must match our worker API route prefix.
+    -->
+    <cap-widget 
         data-cap-api-endpoint="/api/"
-    ></div>
+    ></cap-widget>
 
-    <p id="status" style="margin-top: 1rem; color: #666;">Completing CAPTCHA...</p>
+    <p id="status" style="margin-top: 1rem; color: #666; font-size: 0.9rem;">
+        If widget doesn't load, check Console (F12)
+    </p>
 </div>
 
 </body>
