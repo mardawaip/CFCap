@@ -119,9 +119,8 @@ export default {
     }
 
     // A. STRICT 404 for Root path
-    // Since we renamed index.html -> demo.html, Cloudflare won't auto-serve it here.
     if (pathname === "/" || pathname === "") {
-      return new Response("Not Found", { status: 404 });
+      return new Response(null, { status: 404 });
     }
 
     // B. Serve Widget JS: /widget/widget.js -> public/widget.js
@@ -131,9 +130,9 @@ export default {
     }
 
     // C. Serve Demo Page: /widget -> public/demo.html
-    // We explicitly fetch 'demo.html' to avoid the 301 redirect loop associated with 'index.html'
-    if (pathname === "/widget" || pathname === "/widget/" || pathname === "/widget/index.html") {
-      const assetUrl = new URL("/demo.html", request.url);
+    // Note: We fetch "/demo" (no extension) to avoid Cloudflare Assets triggering a 308 Redirect.
+    if (["/widget", "/widget/", "/widget/index.html", "/widget/demo.html"].includes(pathname)) {
+      const assetUrl = new URL("/demo", request.url);
       return env.ASSETS.fetch(new Request(assetUrl, request));
     }
 
