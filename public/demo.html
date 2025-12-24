@@ -1,7 +1,6 @@
 <!-- =============================================
 repo: kaerez/cfcap
 file: public/demo.html
-IMPORTANT: This file replaces public/index.html
 ============================================= -->
 <!DOCTYPE html>
 <html lang="en">
@@ -11,8 +10,8 @@ IMPORTANT: This file replaces public/index.html
     <title>CFCap Demo</title>
     
     <!-- 
-      1. Point to /widget/widget.js (handled by worker alias)
-      2. Use type="module" in case the downloaded file is ESM
+      The script is requested from /widget/widget.js.
+      The worker serves the downloaded artifact at this URL.
     -->
     <script src="/widget/widget.js" type="module"></script>
 
@@ -28,10 +27,7 @@ IMPORTANT: This file replaces public/index.html
 <div class="container">
     <h1>CFCap Demo</h1>
     
-    <!-- 
-      Use <cap-widget> custom element.
-      data-cap-api-endpoint: must match our worker API route prefix.
-    -->
+    <!-- API endpoint is relative to root -->
     <cap-widget 
         data-cap-api-endpoint="/api/"
     ></cap-widget>
