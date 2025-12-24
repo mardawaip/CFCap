@@ -293,7 +293,7 @@ file: demo/landing.html
         }
         .copy-btn:hover { background: var(--copy-btn-hover); color: var(--text-primary); }
 
-        /* FIX 3-6: Specific Styles for Demos */
+        /* FIXES FOR CUSTOMIZATIONS */
         
         .preview-dark { background: #1a1a1a !important; }
         
@@ -309,9 +309,11 @@ file: demo/landing.html
         /* 4. Hide Label - Force font size 0 */
         cap-widget.hide-label {
             --cap-font-size: 0px !important; 
-            font-size: 0px !important; /* Force override */
+            font-size: 0px !important; 
             --cap-font: 0px/0px sans-serif !important;
         }
+        /* Also attempt to hide via ::part if exposed */
+        cap-widget.hide-label::part(label) { display: none; }
 
         /* 5. Replace Label - Flex Alignment */
         .replace-label-wrap {
@@ -393,11 +395,11 @@ file: demo/landing.html
         
         <div class="demo-container">
             <div class="demo-widget">
-                <!-- SHADOW DOM TEMPLATE WITH STROBE EFFECT -->
+                <!-- TEMPLATE: Strobe Effect & Accurate Branding -->
                 <cap-widget id="main-cap" data-cap-api-endpoint="/api/" data-cap-worker-count="4">
                     <template shadowrootmode="open">
                         <style>
-                            .captcha{
+                            .captcha {
                                 box-sizing: border-box;
                                 background-color: var(--cap-background, #fdfdfd);
                                 border: 1px solid var(--cap-border-color, #dddddd8f);
@@ -421,16 +423,15 @@ file: demo/landing.html
                                 content: "";
                                 position: absolute;
                                 top: 0; left: 0; width: 100%; height: 100%;
-                                background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+                                background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%);
+                                background-size: 200% 100%;
                                 animation: strobe 2.5s infinite linear;
-                                transform: translateX(-100%);
                                 pointer-events: none;
                             }
                             
                             @keyframes strobe {
-                                0% { transform: translateX(-100%); }
-                                40% { transform: translateX(100%); }
-                                100% { transform: translateX(100%); }
+                                0% { background-position: 100% 0; }
+                                100% { background-position: -100% 0; }
                             }
 
                             .checkbox {
@@ -442,13 +443,24 @@ file: demo/landing.html
                                 display: flex; align-items: center; justify-content: center;
                             }
                             
+                            /* Success State - Green Check */
                             .captcha[data-state="done"] .checkbox {
-                                border-color: transparent;
-                                background: none;
+                                border-color: #22c55e;
+                                background: #22c55e;
+                                position: relative;
+                            }
+                            .captcha[data-state="done"] .checkbox::after {
+                                content: '';
+                                width: 5px; height: 10px;
+                                border: solid white;
+                                border-width: 0 2px 2px 0;
+                                transform: rotate(45deg);
+                                margin-bottom: 2px;
                             }
                             
                             .captcha p { margin: 0; font-weight: 500; font-size: 15px; }
                             
+                            /* Branding: "CFCap" as requested */
                             .credits {
                                 position: absolute; bottom: 6px; right: 10px;
                                 font-size: 10px; color: #999; text-decoration: none;
@@ -457,7 +469,8 @@ file: demo/landing.html
                         <div class="captcha" part="container">
                             <div class="checkbox" part="checkbox"></div>
                             <p part="label">I'm a human</p>
-                            <a class="credits" href="#" target="_blank">CFCap</a>
+                            <!-- UPDATED: CFCap branding for the widget link -->
+                            <a class="credits" href="https://capjs.js.org/" target="_blank">CFCap</a>
                         </div>
                     </template>
                 </cap-widget>
@@ -638,6 +651,14 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
         d.innerText = "✅ Verified: " + e.detail.token.substring(0,8) + "...";
         d.style.color = "var(--success-color)";
         d.style.borderColor = "var(--success-color)";
+        
+        // Post-verification state update for Shadow DOM if possible
+        if(main.shadowRoot) {
+            const p = main.shadowRoot.querySelector('p');
+            if(p) p.innerText = "You're a human";
+            const c = main.shadowRoot.querySelector('.captcha');
+            if(c) c.setAttribute('data-state', 'done');
+        }
     });
 
     const evt = document.getElementById('event-cap');
