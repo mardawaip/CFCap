@@ -20,15 +20,17 @@ file: demo/landing.html
 
     <style>
         :root {
-            /* Light Theme Defaults */
-            --bg-body: #ffffff;
-            --bg-secondary: #f5f5f7;
+            /* Theme Variables */
+            --primary-gradient: linear-gradient(135deg, rgba(0, 113, 227, 0.92) 0%, rgba(10, 132, 255, 0.72) 100%);
             --text-primary: #1d1d1f;
-            --text-secondary: #86868b;
+            --text-secondary: rgba(29, 29, 31, 0.72);
+            --bg-secondary: #f5f5f7;
+            --border-light: rgba(60, 60, 67, 0.18);
+            --border-soft: rgba(60, 60, 67, 0.12);
             --brand-color: #0071e3;
-            --border-color: #d2d2d7;
-            --surface-card: #ffffff;
-            --surface-overlay: rgba(255, 255, 255, 0.8);
+            --surface-card: rgba(255, 255, 255, 0.9);
+            --surface-overlay: rgba(255, 255, 255, 0.85);
+            --surface-muted: rgba(0, 0, 0, 0.04);
             
             /* Code Box Light */
             --code-bg: #f6f8fa;
@@ -180,13 +182,19 @@ file: demo/landing.html
         }
 
         .demo-widget {
-            background: var(--bg-secondary);
+            /* FIXED: Blue-ish background for hero demo to match screenshot */
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
             padding: 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border-right: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        [data-theme="dark"] .demo-widget {
+            background: linear-gradient(135deg, #0c4a6e 0%, #082f49 100%);
         }
 
         .demo-code {
@@ -199,10 +207,11 @@ file: demo/landing.html
             margin-top: 24px;
             padding: 8px 16px;
             border-radius: 99px;
-            background: var(--surface-card);
-            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.5);
+            border: 1px solid rgba(0,0,0,0.05);
             font-size: 0.9rem;
             color: var(--text-secondary);
+            backdrop-filter: blur(4px);
         }
 
         /* --- TABS --- */
@@ -288,6 +297,7 @@ file: demo/landing.html
         
         .preview-dark { background: #1a1a1a !important; }
         
+        /* 3. Dark Theme - Force Variables */
         cap-widget.custom-dark {
             --cap-background: #111;
             --cap-border-color: #333;
@@ -296,12 +306,14 @@ file: demo/landing.html
             --cap-checkbox-background: #222;
         }
 
+        /* 4. Hide Label - Force font size 0 */
         cap-widget.hide-label {
-            --cap-font-size: 0px; 
-            font-size: 0px !important;
-            --cap-font: 0px/0px sans-serif;
+            --cap-font-size: 0px !important; 
+            font-size: 0px !important; /* Force override */
+            --cap-font: 0px/0px sans-serif !important;
         }
 
+        /* 5. Replace Label - Flex Alignment */
         .replace-label-wrap {
             display: flex;
             align-items: center;
@@ -312,12 +324,14 @@ file: demo/landing.html
             border-radius: 12px;
         }
 
+        /* 6. Kitchen Sink - Explicit Styling */
         cap-widget.custom-kitchen {
-            --cap-border-radius: 0;
-            --cap-color: #2cb67d;
-            --cap-background: #1e1e24;
-            --cap-border-color: #2cb67d;
-            --cap-font: 'Courier New', monospace;
+            --cap-border-radius: 0px !important;
+            --cap-color: #2cb67d !important;
+            --cap-background: #1e1e24 !important;
+            --cap-border-color: #2cb67d !important;
+            --cap-font: 'Courier New', monospace !important;
+            --cap-checkbox-size: 30px !important;
         }
 
         /* --- TERMINAL (Events) --- */
@@ -402,12 +416,12 @@ file: demo/landing.html
                                 font-family: var(--cap-font, system-ui, sans-serif);
                             }
                             
-                            /* Strobe Effect for Verifying/Loading State */
+                            /* Strobe Effect */
                             .captcha:not([data-state="done"])::after {
                                 content: "";
                                 position: absolute;
                                 top: 0; left: 0; width: 100%; height: 100%;
-                                background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+                                background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
                                 animation: strobe 2.5s infinite linear;
                                 transform: translateX(-100%);
                                 pointer-events: none;
@@ -415,7 +429,7 @@ file: demo/landing.html
                             
                             @keyframes strobe {
                                 0% { transform: translateX(-100%); }
-                                30% { transform: translateX(100%); }
+                                40% { transform: translateX(100%); }
                                 100% { transform: translateX(100%); }
                             }
 
@@ -480,7 +494,7 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
     <div class="section">
         <h2>Event Handling</h2>
         <div class="demo-container">
-            <div class="demo-widget">
+            <div class="demo-widget" style="background: var(--surface-overlay);">
                 <cap-widget id="event-cap" data-cap-api-endpoint="/api/"></cap-widget>
                 <button class="btn ghost" style="margin-top:16px; font-size:0.8rem;" onclick="document.getElementById('event-cap').reset()">Reset Widget</button>
             </div>
@@ -581,8 +595,8 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
         </div>
 
         <!-- Hidden Widgets -->
-        <cap-widget id="float-bot" style="display:none" data-cap-api-endpoint="/api/" onsolve="alert('Bottom Solved')"></cap-widget>
-        <cap-widget id="float-top" style="display:none" data-cap-api-endpoint="/api/" onsolve="alert('Top Solved')"></cap-widget>
+        <cap-widget id="float-bot" style="display:none" data-cap-api-endpoint="/api/" onsolve="showToast('Bottom Solved')"></cap-widget>
+        <cap-widget id="float-top" style="display:none" data-cap-api-endpoint="/api/" onsolve="showToast('Top Solved')"></cap-widget>
     </div>
 
 </div>
@@ -638,6 +652,14 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
         evt.addEventListener('error', (e) => log(`ERROR: ${JSON.stringify(e.detail)}`));
         evt.addEventListener('reset', () => log('RESET'));
         evt.addEventListener('progress', () => log('PROGRESS...'));
+    }
+
+    // Toast
+    window.showToast = (msg) => {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
     }
 </script>
 </body>
