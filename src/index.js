@@ -111,7 +111,7 @@ export default {
     }
 
     // ---------------------------------------------------------
-    // 2. Static Assets & Routing
+    // 2. Routing & Asset Serving
     // ---------------------------------------------------------
 
     if (!env.ASSETS) {
@@ -123,20 +123,16 @@ export default {
       return new Response(null, { status: 404 });
     }
 
-    // B. Serve Widget JS: /widget/widget.js -> public/widget.js
-    if (pathname === "/widget/widget.js") {
-      const assetUrl = new URL("/widget.js", request.url);
+    // B. Serve Demo Page
+    // URL: /widget -> Content: public/demo.html
+    // URL: /widget/demo.html -> Content: public/demo.html
+    if (["/widget", "/widget/", "/widget/demo.html"].includes(pathname)) {
+      const assetUrl = new URL("/demo.html", request.url);
       return env.ASSETS.fetch(new Request(assetUrl, request));
     }
 
-    // C. Serve Demo Page: /widget -> public/demo.html
-    // Note: We fetch "/demo" (no extension) to avoid Cloudflare Assets triggering a 308 Redirect.
-    if (["/widget", "/widget/", "/widget/index.html", "/widget/demo.html"].includes(pathname)) {
-      const assetUrl = new URL("/demo", request.url);
-      return env.ASSETS.fetch(new Request(assetUrl, request));
-    }
-
-    // D. Fallback for other assets (e.g. favicon)
+    // C. Default Asset Serving
+    // URL: /widget/widget.js -> Content: public/widget/widget.js (Artifact from build)
     return env.ASSETS.fetch(request);
   },
 };
