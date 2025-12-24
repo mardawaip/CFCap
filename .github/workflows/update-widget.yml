@@ -1,0 +1,56 @@
+name: Update Widget
+
+on:
+  push:
+    paths:
+      - 'widget/package.json'
+  workflow_dispatch:
+
+jobs:
+  update-widget:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Read Widget Version
+        id: version
+        run: |
+          VERSION=$(jq -r '.dependencies["@cap.js/widget"]' widget/package.json)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Target version: $VERSION"
+
+      - name: Download Widget
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+          URL="https://cdn.jsdelivr.net/npm/@cap.js/widget@$VERSION/dist/widget.js"
+          mkdir -p widget
+          echo "Downloading from $URL..."
+          curl -L -f -o widget/widget.js "$URL"
+
+      - name: Verify Download
+        run: |
+          if [ ! -s widget/widget.js ]; then
+            echo "Error: Widget file is empty or missing."
+            exit 1
+          fi
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add widget/widget.js
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to widget.js"
+          else
+            git commit -m "chore: update widget.js to version ${{ steps.version.outputs.VERSION }}"
+            git push
+          fi
