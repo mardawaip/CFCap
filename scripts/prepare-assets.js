@@ -9,8 +9,6 @@ const https = require('node:https');
 
 // Configuration
 const WIDGET_VERSION = '0.1.33';
-// We save the file to public/widget/widget.js so Cloudflare Assets uploads it 
-// and serves it at /widget/widget.js naturally.
 const TARGET_DIR = path.join(__dirname, '..', 'public', 'widget');
 const TARGET_FILE = path.join(TARGET_DIR, 'widget.js');
 
@@ -19,16 +17,15 @@ if (!fs.existsSync(TARGET_DIR)) {
   fs.mkdirSync(TARGET_DIR, { recursive: true });
 }
 
-// Strategy: Try to find the file in node_modules first. 
+// Strategy 1: Try to find the browser build in node_modules
 const copyFromNodeModules = () => {
   try {
     const pkgPath = require.resolve('@cap.js/widget/package.json');
     const pkgDir = path.dirname(pkgPath);
     
-    // Look for a dist folder or standard browser files
+    // Common paths for browser bundles
     const candidates = [
       path.join(pkgDir, 'dist', 'widget.js'),
-      path.join(pkgDir, 'dist', 'cap.js'),
       path.join(pkgDir, 'widget.js')
     ];
 
@@ -48,6 +45,7 @@ const copyFromNodeModules = () => {
   }
 };
 
+// Strategy 2: Download from CDN
 const downloadFromCDN = () => {
   const url = `https://cdn.jsdelivr.net/npm/@cap.js/widget@${WIDGET_VERSION}/dist/widget.js`; 
   const altUrl = `https://cdn.jsdelivr.net/npm/@cap.js/widget@${WIDGET_VERSION}/widget.js`;
@@ -82,9 +80,9 @@ const downloadFromCDN = () => {
   });
 };
 
-// Execution
 (async () => {
   try {
+    // Try download first to guarantee browser version
     await downloadFromCDN();
   } catch (err) {
     console.error('❌ Download failed:', err.message);
