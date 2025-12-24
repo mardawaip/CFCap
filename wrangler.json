@@ -6,7 +6,7 @@
     "nodejs_compat"
   ],
   "assets": {
-    "directory": "./public",
+    "directory": ".",
     "binding": "ASSETS"
   },
   "d1_databases": [
