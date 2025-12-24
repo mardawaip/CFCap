@@ -124,15 +124,19 @@ export default {
     }
 
     // B. Serve Demo Page
-    // URL: /widget -> Content: public/demo.html
-    // URL: /widget/demo.html -> Content: public/demo.html
+    // FIX: Fetch "/demo" instead of "/demo.html". 
+    // This avoids Cloudflare Assets returning a 301 Redirect to the "Pretty URL".
     if (["/widget", "/widget/", "/widget/demo.html"].includes(pathname)) {
-      const assetUrl = new URL("/demo.html", request.url);
-      return env.ASSETS.fetch(new Request(assetUrl, request));
+      const assetUrl = new URL("/demo", request.url);
+      const response = await env.ASSETS.fetch(new Request(assetUrl, request));
+      
+      // Safety: If for some reason it still redirects, return the original response
+      // but typically fetching the canonical name prevents the 301.
+      return response;
     }
 
     // C. Default Asset Serving
-    // URL: /widget/widget.js -> Content: public/widget/widget.js (Artifact from build)
+    // This handles /widget/widget.js
     return env.ASSETS.fetch(request);
   },
 };
