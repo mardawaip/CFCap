@@ -1,22 +1,22 @@
 {
   "name": "cfcap",
-  "version": "1.0.0",
-  "description": "CFCap - Cloudflare Worker for @cap.js/server",
   "main": "src/index.js",
-  "scripts": {
-    "start": "wrangler dev",
-    "prepare-assets": "node scripts/prepare-assets.js",
-    "predeploy": "npm run prepare-assets",
-    "deploy": "npm run predeploy && wrangler deploy",
-    "cf-typegen": "wrangler types"
+  "compatibility_date": "2025-12-24",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
   },
-  "author": "Erez Kalman",
-  "license": "Commercial",
-  "dependencies": {
-    "@cap.js/server": "4.0.5",
-    "@cap.js/widget": "0.1.33"
-  },
-  "devDependencies": {
-    "wrangler": "4.56.0"
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cfcap-db",
+      "database_id": "d9997cee-8516-4013-95bf-2db8605813e6"
+    }
+  ],
+  "observability": {
+    "enabled": true
   }
 }
