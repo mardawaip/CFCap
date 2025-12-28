@@ -10,20 +10,42 @@ Secure, R2-backed deployment of [Cap](https://github.com/tiagozip/cap) captcha o
 
 ## 1. GUI Based Deployment (Cloudflare Dashboard)
 
-**Refined for Ease:** This project includes a setup script that runs automatically during the build.
-*   **Default Behavior:** Without extra config, it builds the code but **skips** resource creation (Buckets/Secrets) due to lack of permissions. You would then create them manually.
-*   **Automated (Recommended):** Add your `CLOUDFLARE_API_TOKEN` to build settings to let the script auto-create everything!
+**Refined for Ease:** This project includes a setup script that automatically builds the worker and creates the necessary R2 storage buckets for you.
 
 ### Step A: Deployment
-1.  **Fork** this repository.
-2.  Connect it to Cloudflare Pages/Workers.
+1.  **Fork** this repository to your GitHub account.
+2.  **Update Configuration** (Important):
+    *   Open `wrangler.toml` in your repository.
+    *   Find the `[vars]` section.
+    *   Update the `ALLOWED` variable to restrict access to your domains.
+    *   **Examples**:
+        *   **Allow Single Domain** (Matches `example.com` ONLY, no subdomains):
+            ```toml
+            ALLOWED = "example.com"
+            ```
+        *   **Allow Subdomains** (Matches `any.example.com`, but NOT `example.com`):
+            ```toml
+            ALLOWED = "*.example.com"
+            ```
+        *   **Allow Root & Subdomains** (Common Setup):
+            ```toml
+            ALLOWED = "example.com, *.example.com"
+            ```
+        *   **Allow Multiple Domains**:
+            ```toml
+            ALLOWED = "example.com, another-site.org"
+            ```
+        *   **Allow All** (Public Access):
+            ```toml
+            ALLOWED = ""
+            ```
+3.  **Connect & Deploy**:
+    *   Go to **Cloudflare Dashboard** > **Workers & Pages**.
+    *   Click **Create Application** > **Connect to Git**.
+    *   Select your forked repository.
+    *   Click **Save and Deploy**.
 
-> **Retry Deployment** (if needed). The build log will show "CFCap Auto-Setup" successfully creating your buckets and secrets.
-
-### Step B: Manual Fallback (If Automation Failed)
-1.  **R2**: Create buckets `cap-challenges` and `cap-tokens` in the dashboard with a **1 Day Lifecycle Rule**.
-
-*Note: Bucket bindings are handled automatically by `wrangler.toml`. Secrets (ALLOWED, TTLs) allow overrides but have safe defaults in code.*
+The build system will automatically run `npm run setup`, creating your `cap-challenges` and `cap-tokens` buckets with the required **1-Day Lifecycle Rule** to auto-delete old data.
 
 
 ---
