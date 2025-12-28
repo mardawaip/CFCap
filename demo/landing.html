@@ -955,7 +955,8 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
                 <li><strong>Verify Response</strong>: Submit solution via <code>/api/redeem</code> for server-side
                     validation</li>
                 <li><strong>Token Usage</strong>: Use returned token for protected operations via
-                    <code>/api/validate</code></li>
+                    <code>/api/validate</code>
+                </li>
             </ol>
         </div>
 
@@ -1063,13 +1064,20 @@ w.addEventListener(<span class="s">"error"</span>, <span class="k">e</span> => c
                     <div class="code-box">
                         <div class="tabs">
                             <div class="tab-list">
-                                <button class="tab-btn active" onclick="setTab('dark', 0)">CSS</button>
-                                <button class="tab-btn" onclick="setTab('dark', 1)">HTML</button>
+                                <button class="tab-btn active" onclick="setTab('dark', 0)">HTML</button>
+                                <button class="tab-btn" onclick="setTab('dark', 1)">JavaScript</button>
+                                <button class="tab-btn" onclick="setTab('dark', 2)">CSS</button>
                             </div>
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                         </div>
                         <div class="code-wrapper">
                             <div id="dark-0" class="code-content active">
+                                <pre>&lt;<span class="t">cap-widget</span> <span class="a">class</span>=<span class="s">"custom-dark"</span>&gt;</pre>
+                            </div>
+                            <div id="dark-1" class="code-content">
+                                <pre><span class="c">// No JS needed</span></pre>
+                            </div>
+                            <div id="dark-2" class="code-content">
                                 <pre>.custom-dark {
   --cap-background: #111;
   --cap-color: #fff;
@@ -1081,9 +1089,6 @@ w.addEventListener(<span class="s">"error"</span>, <span class="k">e</span> => c
   background: #111;
   color: #888;
 }</pre>
-                            </div>
-                            <div id="dark-1" class="code-content">
-                                <pre>&lt;<span class="t">cap-widget</span> <span class="a">class</span>=<span class="s">"custom-dark"</span>&gt;</pre>
                             </div>
                         </div>
                     </div>
@@ -1100,13 +1105,20 @@ w.addEventListener(<span class="s">"error"</span>, <span class="k">e</span> => c
                     <div class="code-box">
                         <div class="tabs">
                             <div class="tab-list">
-                                <button class="tab-btn active" onclick="setTab('hide', 0)">CSS</button>
-                                <button class="tab-btn" onclick="setTab('hide', 1)">HTML</button>
+                                <button class="tab-btn active" onclick="setTab('hide', 0)">HTML</button>
+                                <button class="tab-btn" onclick="setTab('hide', 1)">JavaScript</button>
+                                <button class="tab-btn" onclick="setTab('hide', 2)">CSS</button>
                             </div>
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                         </div>
                         <div class="code-wrapper">
                             <div id="hide-0" class="code-content active">
+                                <pre>&lt;<span class="t">cap-widget</span> <span class="a">class</span>=<span class="s">"hide-label"</span>&gt;</pre>
+                            </div>
+                            <div id="hide-1" class="code-content">
+                                <pre><span class="c">// No JS needed</span></pre>
+                            </div>
+                            <div id="hide-2" class="code-content">
                                 <pre>/* Hide Link */
 cap-widget.hide-label::part(attribution) { display: none !important; }
 
@@ -1114,9 +1126,6 @@ cap-widget.hide-label::part(attribution) { display: none !important; }
 cap-widget.hide-label {
   --cap-font-size: 0px;
 }</pre>
-                            </div>
-                            <div id="hide-1" class="code-content">
-                                <pre>&lt;<span class="t">cap-widget</span> <span class="a">class</span>=<span class="s">"hide-label"</span>&gt;</pre>
                             </div>
                         </div>
                     </div>
@@ -1133,13 +1142,20 @@ cap-widget.hide-label {
                     <div class="code-box">
                         <div class="tabs">
                             <div class="tab-list">
-                                <button class="tab-btn active" onclick="setTab('sink', 0)">CSS</button>
-                                <button class="tab-btn" onclick="setTab('sink', 1)">HTML</button>
+                                <button class="tab-btn active" onclick="setTab('sink', 0)">HTML</button>
+                                <button class="tab-btn" onclick="setTab('sink', 1)">JavaScript</button>
+                                <button class="tab-btn" onclick="setTab('sink', 2)">CSS</button>
                             </div>
                             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                         </div>
                         <div class="code-wrapper">
                             <div id="sink-0" class="code-content active">
+                                <pre>&lt;<span class="t">cap-widget</span> <span class="a">class</span>=<span class="s">"custom-kitchen"</span>&gt;</pre>
+                            </div>
+                            <div id="sink-1" class="code-content">
+                                <pre><span class="c">// No JS needed</span></pre>
+                            </div>
+                            <div id="sink-2" class="code-content">
                                 <pre>.kitchen {
   --cap-border-radius: 0;
   --cap-color: #2cb67d;
@@ -1148,9 +1164,6 @@ cap-widget.hide-label {
 .custom-kitchen.branding-overlay::before {
   background: #1e1e24;
 }</pre>
-                            </div>
-                            <div id="sink-1" class="code-content">
-                                <pre>&lt;<span class="t">cap-widget</span> <span class="a">class</span>=<span class="s">"kitchen"</span>&gt;</pre>
                             </div>
                         </div>
                     </div>
