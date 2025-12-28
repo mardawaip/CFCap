@@ -92,37 +92,19 @@ export default {
       });
     }
 
-    // [DEBUG] Health Check - Verification of Worker Startup & Capabilities
-    if (pathname === "/api/health") {
-      const diag = { status: "OK", checks: {} };
-      try {
-        // Check 1: Crypto
-        const hash = createHash("sha256").update("test").digest("hex");
-        diag.checks.crypto = { status: "ok", result: hash };
-      } catch (e) {
-        diag.checks.crypto = { status: "failed", error: e.message };
-        diag.status = "WARNING";
-      }
-
-      try {
-        // Check 2: R2 Connectivity
-        const list = await env.R2_TOKENS.list({ limit: 1 });
-        diag.checks.r2 = { status: "ok", count: list.objects.length };
-      } catch (e) {
-        diag.checks.r2 = { status: "failed", error: e.message };
-        diag.status = "WARNING";
-      }
-
-      return new Response(JSON.stringify(diag, null, 2), {
-        status: 200,
-        headers: { "Content-Type": "application/json" }
-      });
-    }
-
-    console.log("DEBUG: Incoming request", request.method, request.url);
     try {
+      const isApiOrWidget = pathname.startsWith("/api") || pathname.startsWith("/widget");
+      // [CHANGE] Exclude validation endpoints from strict access checks to allow server-to-server calls
       const isValidationEndpoint = pathname === "/api/validate" || pathname === "/api/verify";
 
+      if (isApiOrWidget && !isValidationEndpoint) {
+        if (!checkAccess(request, env)) {
+          return new Response("Forbidden", {
+            status: 403,
+            headers: getCorsHeaders(request, env)
+          });
+        }
+      }
 
       // ---------------------------------------------------------
       // 1. API Routes (Backend Logic)
@@ -188,12 +170,8 @@ export default {
         },
       });
 
-      // [DEBUG] Logging Routing Decisions
-      console.log(`DEBUG: Routing - Method: ${request.method}, Path: ${pathname}, IsValidation: ${isValidationEndpoint}`);
-
       // API Routes
       if (request.method === "POST") {
-        console.log("DEBUG: Entered POST block");
         const corsHeaders = getCorsHeaders(request, env);
 
         if (pathname === "/api/challenge") {
@@ -205,10 +183,8 @@ export default {
                 ...corsHeaders
               }
             });
-
           } catch (err) {
-            console.error("DEBUG: Challenge Creation Failed:", err);
-            return new Response(JSON.stringify({ error: err.message, stack: err.stack }), {
+            return new Response(JSON.stringify({ error: err.message }), {
               status: 500,
               headers: corsHeaders
             });
@@ -301,7 +277,6 @@ export default {
       return response;
     } catch (e) {
       // Global Error Handler
-      console.error("DEBUG: GLOBAL ERROR:", e);
       return new Response(JSON.stringify({
         success: false,
         error: "Internal Server Error",
