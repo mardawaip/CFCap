@@ -612,29 +612,13 @@ file: demo/landing.html
 
         .api-code-block pre {
             padding: 24px;
-            padding-right: 90px;
-            /* Space for Copy button */
             margin: 0;
             overflow-x: auto;
             font-size: 0.9rem;
             line-height: 1.5;
         }
 
-        .api-code-block .copy-btn {
-            position: absolute;
-            top: 50%;
-            right: 16px;
-            transform: translateY(-50%);
-            margin: 0;
-            z-index: 5;
-            background: #e2e4e9;
-            color: #4b5563;
-        }
 
-        [data-theme="dark"] .api-code-block .copy-btn {
-            background: rgba(255, 255, 255, 0.15);
-            color: #e5e7eb;
-        }
 
         .feature-grid {
             display: grid;
@@ -1032,13 +1016,11 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
 
                 <h4 style="margin: 32px 0 16px 0;">Request Example:</h4>
                 <div class="api-code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre><span class="k">fetch</span>(<span class="s">'/api/challenge'</span>, { <span class="a">method</span>: <span class="s">'POST'</span>, <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> } })</pre>
                 </div>
 
                 <h4 style="margin: 32px 0 16px 0;">Response Example:</h4>
                 <div class="api-code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre>{ <span class="a">"token"</span>: <span class="s">"785975238a3c4f0c1b0c39ed75e6e4cc..."</span>, <span class="a">"challenge"</span>: { <span class="a">"c"</span>: <span class="s">50</span>, <span class="a">"s"</span>: <span class="s">32</span>, <span class="a">"d"</span>: <span class="s">4</span> }, <span class="a">"expires"</span>: <span class="s">1753924498818</span> }</pre>
                 </div>
             </div>
@@ -1071,7 +1053,6 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
 
                 <h4 style="margin: 32px 0 16px 0;">Request Example:</h4>
                 <div class="api-code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre><span class="k">fetch</span>(<span class="s">'/api/redeem'</span>, { 
   <span class="a">method</span>: <span class="s">'POST'</span>, 
   <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> }, 
@@ -1081,7 +1062,6 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
 
                 <h4 style="margin: 32px 0 16px 0;">Response Example:</h4>
                 <div class="api-code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre>{ <span class="a">"success"</span>: <span class="k">true</span>, <span class="a">"token"</span>: <span class="s">"785975238a3c4f0c..."</span> }</pre>
                 </div>
             </div>
@@ -1113,7 +1093,6 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
 
                 <h4 style="margin: 32px 0 16px 0;">Request Example:</h4>
                 <div class="api-code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre><span class="k">fetch</span>(<span class="s">'/api/validate'</span>, { 
   <span class="a">method</span>: <span class="s">'POST'</span>, 
   <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> }, 
@@ -1123,7 +1102,6 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
 
                 <h4 style="margin: 32px 0 16px 0;">Response Example:</h4>
                 <div class="api-code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre>{ <span class="a">"success"</span>: <span class="k">true</span> }</pre>
                 </div>
             </div>
@@ -1149,7 +1127,6 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
 
                 <h4 style="margin: 32px 0 16px 0;">Request Example:</h4>
                 <div class="api-code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre><span class="k">fetch</span>(<span class="s">'/api/delete'</span>, { 
   <span class="a">method</span>: <span class="s">'POST'</span>, 
   <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> }, 
@@ -1159,7 +1136,6 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
 
                 <h4 style="margin: 32px 0 16px 0;">Response Example:</h4>
                 <div class="api-code-block">
-                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
                     <pre>{ <span class="a">"success"</span>: <span class="k">true</span> }</pre>
                 </div>
             </div>
@@ -1431,7 +1407,7 @@ cap-widget.hide-label::part(attribution) { display: none !important; }</pre>
                         <div class="code-wrapper">
                             <div id="float2-0" class="code-content active">
                                 <pre><span class="c">&lt;!-- CDN --&gt;</span>
-&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/npm/@cap.js/widget@0.1.33/dist/widget.js"</span> <span class="a">type</span>=<span class="s">"module"</span>&gt;&lt;/<span class="t">script</span>&gt;
+&lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/npm/@cap.js/widget@0.1.33/cap.min.js"</span> <span class="a">type</span>=<span class="s">"module"</span>&gt;&lt;/<span class="t">script</span>&gt;
 &lt;<span class="t">script</span> <span class="a">src</span>=<span class="s">"https://cdn.jsdelivr.net/npm/@cap.js/widget@0.1.33/cap-floating.min.js"</span>&gt;&lt;/<span class="t">script</span>&gt;
 
 &lt;<span class="t">button</span> <span class="a">data-cap-floating</span>=<span class="s">"#my-cap"</span> 
