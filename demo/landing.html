@@ -598,6 +598,44 @@ file: demo/landing.html
             font-weight: 500;
         }
 
+        /* API Code Blocks */
+        .api-code-block {
+            background: var(--bg-secondary) !important;
+            border: 1px solid var(--border-soft);
+            border-radius: 12px;
+            position: relative;
+            margin-top: 0;
+            overflow: hidden;
+            /* Ensure height automatic */
+            min-height: 0 !important;
+        }
+
+        .api-code-block pre {
+            padding: 24px;
+            padding-right: 90px;
+            /* Space for Copy button */
+            margin: 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .api-code-block .copy-btn {
+            position: absolute;
+            top: 50%;
+            right: 16px;
+            transform: translateY(-50%);
+            margin: 0;
+            z-index: 5;
+            background: #e2e4e9;
+            color: #4b5563;
+        }
+
+        [data-theme="dark"] .api-code-block .copy-btn {
+            background: rgba(255, 255, 255, 0.15);
+            color: #e5e7eb;
+        }
+
         .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -993,23 +1031,15 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
                     client rendering.</p>
 
                 <h4 style="margin: 32px 0 16px 0;">Request Example:</h4>
-                <div
-                    style="background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)"
-                        style="position: absolute; top: 16px; right: 16px;">Copy</button>
-                    <div class="code-content active" style="padding: 0; display: block; overflow-x: auto;">
-                        <pre><span class="k">fetch</span>(<span class="s">'/api/challenge'</span>, { <span class="a">method</span>: <span class="s">'POST'</span>, <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> } })</pre>
-                    </div>
+                <div class="api-code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><span class="k">fetch</span>(<span class="s">'/api/challenge'</span>, { <span class="a">method</span>: <span class="s">'POST'</span>, <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> } })</pre>
                 </div>
 
                 <h4 style="margin: 32px 0 16px 0;">Response Example:</h4>
-                <div
-                    style="background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)"
-                        style="position: absolute; top: 16px; right: 16px;">Copy</button>
-                    <div class="code-content active" style="padding: 0; display: block; overflow-x: auto;">
-                        <pre>{ <span class="a">"token"</span>: <span class="s">"785975238a3c4f0c1b0c39ed75e6e4cc..."</span>, <span class="a">"challenge"</span>: { <span class="a">"c"</span>: <span class="s">50</span>, <span class="a">"s"</span>: <span class="s">32</span>, <span class="a">"d"</span>: <span class="s">4</span> }, <span class="a">"expires"</span>: <span class="s">1753924498818</span> }</pre>
-                    </div>
+                <div class="api-code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>{ <span class="a">"token"</span>: <span class="s">"785975238a3c4f0c1b0c39ed75e6e4cc..."</span>, <span class="a">"challenge"</span>: { <span class="a">"c"</span>: <span class="s">50</span>, <span class="a">"s"</span>: <span class="s">32</span>, <span class="a">"d"</span>: <span class="s">4</span> }, <span class="a">"expires"</span>: <span class="s">1753924498818</span> }</pre>
                 </div>
             </div>
 
@@ -1040,27 +1070,19 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
                 </div>
 
                 <h4 style="margin: 32px 0 16px 0;">Request Example:</h4>
-                <div
-                    style="background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)"
-                        style="position: absolute; top: 16px; right: 16px;">Copy</button>
-                    <div class="code-content active" style="padding: 0; display: block; overflow-x: auto;">
-                        <pre><span class="k">fetch</span>(<span class="s">'/api/redeem'</span>, { 
+                <div class="api-code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><span class="k">fetch</span>(<span class="s">'/api/redeem'</span>, { 
   <span class="a">method</span>: <span class="s">'POST'</span>, 
   <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> }, 
   <span class="a">body</span>: JSON.stringify({ <span class="a">token</span>: <span class="s">'...'</span>, <span class="a">solutions</span>: [<span class="s">1</span>, <span class="s">3</span>, <span class="s">7</span>] }) 
 })</pre>
-                    </div>
                 </div>
 
                 <h4 style="margin: 32px 0 16px 0;">Response Example:</h4>
-                <div
-                    style="background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)"
-                        style="position: absolute; top: 16px; right: 16px;">Copy</button>
-                    <div class="code-content active" style="padding: 0; display: block; overflow-x: auto;">
-                        <pre>{ <span class="a">"success"</span>: <span class="k">true</span>, <span class="a">"token"</span>: <span class="s">"785975238a3c4f0c..."</span> }</pre>
-                    </div>
+                <div class="api-code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>{ <span class="a">"success"</span>: <span class="k">true</span>, <span class="a">"token"</span>: <span class="s">"785975238a3c4f0c..."</span> }</pre>
                 </div>
             </div>
 
@@ -1090,27 +1112,19 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
                 </div>
 
                 <h4 style="margin: 32px 0 16px 0;">Request Example:</h4>
-                <div
-                    style="background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)"
-                        style="position: absolute; top: 16px; right: 16px;">Copy</button>
-                    <div class="code-content active" style="padding: 0; display: block; overflow-x: auto;">
-                        <pre><span class="k">fetch</span>(<span class="s">'/api/validate'</span>, { 
+                <div class="api-code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><span class="k">fetch</span>(<span class="s">'/api/validate'</span>, { 
   <span class="a">method</span>: <span class="s">'POST'</span>, 
   <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> }, 
   <span class="a">body</span>: JSON.stringify({ <span class="a">token</span>: <span class="s">'...'</span>, <span class="a">keepToken</span>: <span class="k">false</span> }) 
 })</pre>
-                    </div>
                 </div>
 
                 <h4 style="margin: 32px 0 16px 0;">Response Example:</h4>
-                <div
-                    style="background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)"
-                        style="position: absolute; top: 16px; right: 16px;">Copy</button>
-                    <div class="code-content active" style="padding: 0; display: block; overflow-x: auto;">
-                        <pre>{ <span class="a">"success"</span>: <span class="k">true</span> }</pre>
-                    </div>
+                <div class="api-code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>{ <span class="a">"success"</span>: <span class="k">true</span> }</pre>
                 </div>
             </div>
 
@@ -1134,27 +1148,19 @@ widget.addEventListener(<span class="s">"solve"</span>, <span class="k">async</s
                 </div>
 
                 <h4 style="margin: 32px 0 16px 0;">Request Example:</h4>
-                <div
-                    style="background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)"
-                        style="position: absolute; top: 16px; right: 16px;">Copy</button>
-                    <div class="code-content active" style="padding: 0; display: block; overflow-x: auto;">
-                        <pre><span class="k">fetch</span>(<span class="s">'/api/delete'</span>, { 
+                <div class="api-code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre><span class="k">fetch</span>(<span class="s">'/api/delete'</span>, { 
   <span class="a">method</span>: <span class="s">'POST'</span>, 
   <span class="a">headers</span>: { <span class="s">'Content-Type'</span>: <span class="s">'application/json'</span> }, 
   <span class="a">body</span>: JSON.stringify({ <span class="a">token</span>: <span class="s">'...'</span> }) 
 })</pre>
-                    </div>
                 </div>
 
                 <h4 style="margin: 32px 0 16px 0;">Response Example:</h4>
-                <div
-                    style="background: var(--bg-secondary); border: 1px solid var(--border-soft); border-radius: 16px; padding: 20px; position: relative;">
-                    <button class="copy-btn" onclick="copyCode(this)"
-                        style="position: absolute; top: 16px; right: 16px;">Copy</button>
-                    <div class="code-content active" style="padding: 0; display: block; overflow-x: auto;">
-                        <pre>{ <span class="a">"success"</span>: <span class="k">true</span> }</pre>
-                    </div>
+                <div class="api-code-block">
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                    <pre>{ <span class="a">"success"</span>: <span class="k">true</span> }</pre>
                 </div>
             </div>
         </div>
