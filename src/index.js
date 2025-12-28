@@ -157,12 +157,20 @@ export default {
     }
 
     // Serve Demo Page at Root or /demo
+    // Fix: Fetch '/demo/landing' (no extension) because Cloudflare Assets prefers pretty URLs
+    // and might redirect .html -> no-extension. We want the content, not the redirect.
     if (pathname === "/" || pathname === "/landing.html") {
-      const assetUrl = new URL("/demo/landing.html", request.url);
-      const resp = await env.ASSETS.fetch(new Request(assetUrl, request));
-      // Reconstitute response to ensure no 301/302 redirect happens
+      const assetUrl = new URL("/demo/landing", request.url);
+      let resp = await env.ASSETS.fetch(new Request(assetUrl, request));
+
+      // Fallback: If no-extension fails (404), try with .html (in case pretty_urls is off)
+      if (resp.status === 404) {
+        resp = await env.ASSETS.fetch(new Request(new URL("/demo/landing.html", request.url), request));
+      }
+
+      // Reconstitute response to ensure no 301/302 redirect happens to the user
       return new Response(resp.body, {
-        status: resp.status,
+        status: (resp.status >= 300 && resp.status < 400) ? 200 : resp.status, // Force 200 if it was a redirect but has body (unlikely for 301, but safe)
         headers: resp.headers
       });
     }
