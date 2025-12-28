@@ -91,14 +91,17 @@ export default {
       });
     }
 
+    console.log("DEBUG: Incoming request", request.method, request.url);
     try {
       const isApiOrWidget = pathname.startsWith("/api") || pathname.startsWith("/widget");
       // [CHANGE] Exclude validation endpoints from strict access checks to allow server-to-server calls
       const isValidationEndpoint = pathname === "/api/validate" || pathname === "/api/verify";
 
       if (isApiOrWidget && !isValidationEndpoint) {
+        console.log("DEBUG: Checking Access for", pathname);
         if (!checkAccess(request, env)) {
-          return new Response("Forbidden", {
+          console.log("DEBUG: Access Denied");
+          return new Response("Forbidden (Debug: Access Check Failed)", {
             status: 403,
             headers: getCorsHeaders(request, env)
           });
