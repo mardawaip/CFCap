@@ -91,191 +91,200 @@ export default {
       });
     }
 
-    const isApiOrWidget = pathname.startsWith("/api") || pathname.startsWith("/widget");
-    // [CHANGE] Exclude validation endpoints from strict access checks to allow server-to-server calls
-    const isValidationEndpoint = pathname === "/api/validate" || pathname === "/api/verify";
+    try {
+      const isApiOrWidget = pathname.startsWith("/api") || pathname.startsWith("/widget");
+      // [CHANGE] Exclude validation endpoints from strict access checks to allow server-to-server calls
+      const isValidationEndpoint = pathname === "/api/validate" || pathname === "/api/verify";
 
-    if (isApiOrWidget && !isValidationEndpoint) {
-      if (!checkAccess(request, env)) {
-        return new Response("Forbidden", {
-          status: 403,
-          headers: getCorsHeaders(request, env)
-        });
-      }
-    }
-
-    // ---------------------------------------------------------
-    // 1. API Routes (Backend Logic)
-    // ---------------------------------------------------------
-
-    const cap = new Cap({
-      challengeTTL: Number(env.CHALLENGE_TTL) || 300,
-      tokenTTL: Number(env.TOKEN_TTL) || 330,
-      storage: {
-        challenges: {
-          store: async (token, challengeData) => {
-            // Store metadata for expiration checking
-            await env.R2_CHALLENGES.put(token, JSON.stringify(challengeData), {
-              customMetadata: { expires: String(challengeData.expires) }
-            });
-          },
-          read: async (token) => {
-            const obj = await env.R2_CHALLENGES.get(token);
-            if (!obj) return null;
-
-            // Check expiration
-            const expires = Number(obj.customMetadata.expires);
-            if (Date.now() > expires) {
-              // Optionally delete async to cleanup?
-              // obj.delete(); // No, we'll let lifecycle or lazy delete handle it
-              return null;
-            }
-
-            const data = await obj.json();
-            return { challenge: data, expires: expires };
-          },
-          delete: async (token) => {
-            await env.R2_CHALLENGES.delete(token);
-          },
-          deleteExpired: async () => {
-            // R2 Lifecycle Policy handles this more efficiently
-            // No-op for code compatibility
-          },
-        },
-        tokens: {
-          store: async (tokenKey, expires) => {
-            await env.R2_TOKENS.put(tokenKey, "valid", {
-              customMetadata: { expires: String(expires) }
-            });
-          },
-          get: async (tokenKey) => {
-            const obj = await env.R2_TOKENS.get(tokenKey);
-            if (!obj) return null;
-
-            const expires = Number(obj.customMetadata.expires);
-            if (Date.now() > expires) return null;
-
-            return expires;
-          },
-          delete: async (tokenKey) => {
-            await env.R2_TOKENS.delete(tokenKey);
-          },
-          deleteExpired: async () => {
-            // R2 Lifecycle Policy handles this more efficiently
-            // No-op for code compatibility
-          },
-        },
-      },
-    });
-
-    // API Routes
-    if (request.method === "POST") {
-      const corsHeaders = getCorsHeaders(request, env);
-
-      if (pathname === "/api/challenge") {
-        try {
-          const challenge = await cap.createChallenge();
-          return new Response(JSON.stringify(challenge), {
-            headers: {
-              "Content-Type": "application/json",
-              ...corsHeaders
-            }
-          });
-        } catch (err) {
-          return new Response(JSON.stringify({ error: err.message }), {
-            status: 500,
-            headers: corsHeaders
+      if (isApiOrWidget && !isValidationEndpoint) {
+        if (!checkAccess(request, env)) {
+          return new Response("Forbidden", {
+            status: 403,
+            headers: getCorsHeaders(request, env)
           });
         }
       }
-      if (pathname === "/api/redeem") {
-        try {
-          const { token, solutions } = await request.json();
-          if (!token || !solutions) {
-            return new Response(JSON.stringify({ success: false, error: "Missing parameters" }), {
-              status: 400,
+
+      // ---------------------------------------------------------
+      // 1. API Routes (Backend Logic)
+      // ---------------------------------------------------------
+
+      const cap = new Cap({
+        challengeTTL: Number(env.CHALLENGE_TTL) || 300,
+        tokenTTL: Number(env.TOKEN_TTL) || 330,
+        storage: {
+          challenges: {
+            store: async (token, challengeData) => {
+              // Store metadata for expiration checking
+              await env.R2_CHALLENGES.put(token, JSON.stringify(challengeData), {
+                customMetadata: { expires: String(challengeData.expires) }
+              });
+            },
+            read: async (token) => {
+              const obj = await env.R2_CHALLENGES.get(token);
+              if (!obj) return null;
+
+              // Check expiration
+              const expires = Number(obj.customMetadata.expires);
+              if (Date.now() > expires) {
+                // Optionally delete async to cleanup?
+                // obj.delete(); // No, we'll let lifecycle or lazy delete handle it
+                return null;
+              }
+
+              const data = await obj.json();
+              return { challenge: data, expires: expires };
+            },
+            delete: async (token) => {
+              await env.R2_CHALLENGES.delete(token);
+            },
+            deleteExpired: async () => {
+              // R2 Lifecycle Policy handles this more efficiently
+              // No-op for code compatibility
+            },
+          },
+          tokens: {
+            store: async (tokenKey, expires) => {
+              await env.R2_TOKENS.put(tokenKey, "valid", {
+                customMetadata: { expires: String(expires) }
+              });
+            },
+            get: async (tokenKey) => {
+              const obj = await env.R2_TOKENS.get(tokenKey);
+              if (!obj) return null;
+
+              const expires = Number(obj.customMetadata.expires);
+              if (Date.now() > expires) return null;
+
+              return expires;
+            },
+            delete: async (tokenKey) => {
+              await env.R2_TOKENS.delete(tokenKey);
+            },
+            deleteExpired: async () => {
+              // R2 Lifecycle Policy handles this more efficiently
+              // No-op for code compatibility
+            },
+          },
+        },
+      });
+
+      // API Routes
+      if (request.method === "POST") {
+        const corsHeaders = getCorsHeaders(request, env);
+
+        if (pathname === "/api/challenge") {
+          try {
+            const challenge = await cap.createChallenge();
+            return new Response(JSON.stringify(challenge), {
+              headers: {
+                "Content-Type": "application/json",
+                ...corsHeaders
+              }
+            });
+          } catch (err) {
+            return new Response(JSON.stringify({ error: err.message }), {
+              status: 500,
               headers: corsHeaders
             });
           }
-          const result = await cap.redeemChallenge({ token, solutions });
-          return new Response(JSON.stringify(result), {
-            headers: {
-              "Content-Type": "application/json",
-              ...corsHeaders
+        }
+        if (pathname === "/api/redeem") {
+          try {
+            const { token, solutions } = await request.json();
+            if (!token || !solutions) {
+              return new Response(JSON.stringify({ success: false, error: "Missing parameters" }), {
+                status: 400,
+                headers: corsHeaders
+              });
             }
-          });
-        } catch (err) {
-          return new Response(JSON.stringify({ success: false, error: err.message }), {
-            status: 500,
-            headers: corsHeaders
-          });
+            const result = await cap.redeemChallenge({ token, solutions });
+            return new Response(JSON.stringify(result), {
+              headers: {
+                "Content-Type": "application/json",
+                ...corsHeaders
+              }
+            });
+          } catch (err) {
+            return new Response(JSON.stringify({ success: false, error: err.message }), {
+              status: 500,
+              headers: corsHeaders
+            });
+          }
+        }
+        if (pathname === "/api/validate" || pathname === "/api/verify") {
+          try {
+            const { token } = await request.json();
+            const result = await cap.validateToken(token, { keepToken: true });
+            return new Response(JSON.stringify(result), {
+              headers: {
+                "Content-Type": "application/json",
+                ...corsHeaders
+              }
+            });
+          } catch (err) {
+            return new Response(JSON.stringify({ success: false, error: err.message }), {
+              status: 500,
+              headers: corsHeaders
+            });
+          }
         }
       }
-      if (pathname === "/api/validate" || pathname === "/api/verify") {
-        try {
-          const { token } = await request.json();
-          const result = await cap.validateToken(token, { keepToken: true });
-          return new Response(JSON.stringify(result), {
-            headers: {
-              "Content-Type": "application/json",
-              ...corsHeaders
-            }
-          });
-        } catch (err) {
-          return new Response(JSON.stringify({ success: false, error: err.message }), {
-            status: 500,
-            headers: corsHeaders
-          });
+
+      // ---------------------------------------------------------
+      // 2. Routing & Asset Serving
+      // ---------------------------------------------------------
+
+      if (!env.ASSETS) {
+        return new Response("Configuration Error: Assets binding not found.", { status: 500 });
+      }
+
+      // Serve Demo Page at Root or /demo
+      // Fix: Fetch '/demo/landing' (no extension) because Cloudflare Assets prefers pretty URLs
+      // and might redirect .html -> no-extension. We want the content, not the redirect.
+      if (pathname === "/" || pathname === "/landing.html") {
+        const assetUrl = new URL("/demo/landing", request.url);
+        let resp = await env.ASSETS.fetch(new Request(assetUrl, request));
+
+        // Fallback: If no-extension fails (404), try with .html (in case pretty_urls is off)
+        if (resp.status === 404) {
+          resp = await env.ASSETS.fetch(new Request(new URL("/demo/landing.html", request.url), request));
         }
-      }
-    }
 
-    // ---------------------------------------------------------
-    // 2. Routing & Asset Serving
-    // ---------------------------------------------------------
-
-    // ---------------------------------------------------------
-    // 2. Routing & Asset Serving
-    // ---------------------------------------------------------
-
-    if (!env.ASSETS) {
-      return new Response("Configuration Error: Assets binding not found.", { status: 500 });
-    }
-
-    // Serve Demo Page at Root or /demo
-    // Fix: Fetch '/demo/landing' (no extension) because Cloudflare Assets prefers pretty URLs
-    // and might redirect .html -> no-extension. We want the content, not the redirect.
-    if (pathname === "/" || pathname === "/landing.html") {
-      const assetUrl = new URL("/demo/landing", request.url);
-      let resp = await env.ASSETS.fetch(new Request(assetUrl, request));
-
-      // Fallback: If no-extension fails (404), try with .html (in case pretty_urls is off)
-      if (resp.status === 404) {
-        resp = await env.ASSETS.fetch(new Request(new URL("/demo/landing.html", request.url), request));
+        // Reconstitute response to ensure no 301/302 redirect happens to the user
+        return new Response(resp.body, {
+          status: (resp.status >= 300 && resp.status < 400) ? 200 : resp.status, // Force 200 if it was a redirect but has body (unlikely for 301, but safe)
+          headers: resp.headers
+        });
       }
 
-      // Reconstitute response to ensure no 301/302 redirect happens to the user
-      return new Response(resp.body, {
-        status: (resp.status >= 300 && resp.status < 400) ? 200 : resp.status, // Force 200 if it was a redirect but has body (unlikely for 301, but safe)
-        headers: resp.headers
+      // C. Default Asset Serving
+      // Handles:
+      // - /widget/widget.js
+      // - /widget/cap-floating.min.js
+      // We attach CORS headers here to ensure /widget resources can be loaded cross-origin if allowed
+      let response = await env.ASSETS.fetch(request);
+
+      // Create new response to modify headers (Response objects are immutable)
+      response = new Response(response.body, response);
+
+      const corsHeaders = getCorsHeaders(request, env);
+      for (const [key, value] of Object.entries(corsHeaders)) {
+        response.headers.set(key, value);
+      }
+
+      return response;
+    } catch (e) {
+      // Global Error Handler
+      return new Response(JSON.stringify({
+        success: false,
+        error: "Internal Server Error",
+        details: e.message,
+        stack: e.stack
+      }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" }
       });
     }
-
-    // C. Default Asset Serving
-    // Handles:
-    // - /widget/widget.js
-    // - /widget/cap-floating.min.js
-    // We attach CORS headers here to ensure /widget resources can be loaded cross-origin if allowed
-    let response = await env.ASSETS.fetch(request);
-
-    // Create new response to modify headers (Response objects are immutable)
-    response = new Response(response.body, response);
-
-    const corsHeaders = getCorsHeaders(request, env);
-    for (const [key, value] of Object.entries(corsHeaders)) {
-      response.headers.set(key, value);
-    }
-
-    return response;
   },
 };
