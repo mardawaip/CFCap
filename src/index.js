@@ -121,6 +121,7 @@ export default {
 
     console.log("DEBUG: Incoming request", request.method, request.url);
     try {
+      const isValidationEndpoint = pathname === "/api/validate" || pathname === "/api/verify";
 
 
       // ---------------------------------------------------------
