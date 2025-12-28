@@ -95,7 +95,7 @@ export default {
     try {
       const isApiOrWidget = pathname.startsWith("/api") || pathname.startsWith("/widget");
       // [CHANGE] Exclude validation endpoints from strict access checks to allow server-to-server calls
-      const isValidationEndpoint = pathname === "/api/validate" || pathname === "/api/verify";
+      const isValidationEndpoint = pathname === "/api/validate" || pathname === "/api/verify" || pathname === "/api/delete";
 
       if (isApiOrWidget && !isValidationEndpoint) {
         if (!checkAccess(request, env)) {
@@ -215,8 +215,29 @@ export default {
         }
         if (pathname === "/api/validate" || pathname === "/api/verify") {
           try {
+            const { token, keepToken } = await request.json();
+            // Default to false (Consume/Delete) if not specified (Standard Security).
+            // Client must explicitly send keepToken: true to preserve it (Session Mode).
+            const shouldKeep = (keepToken !== undefined) ? keepToken : false;
+            const result = await cap.validateToken(token, { keepToken: shouldKeep });
+            return new Response(JSON.stringify(result), {
+              headers: {
+                "Content-Type": "application/json",
+                ...corsHeaders
+              }
+            });
+          } catch (err) {
+            return new Response(JSON.stringify({ success: false, error: err.message }), {
+              status: 500,
+              headers: corsHeaders
+            });
+          }
+        }
+        if (pathname === "/api/delete") {
+          try {
             const { token } = await request.json();
-            const result = await cap.validateToken(token, { keepToken: true });
+            // Validate AND delete (keepToken: false is default, but explicit for clarity)
+            const result = await cap.validateToken(token, { keepToken: false });
             return new Response(JSON.stringify(result), {
               headers: {
                 "Content-Type": "application/json",
