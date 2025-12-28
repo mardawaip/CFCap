@@ -91,6 +91,11 @@ export default {
       });
     }
 
+    // [DEBUG] Health Check - Verification of Worker Startup
+    if (pathname === "/api/health") {
+      return new Response("OK", { status: 200 });
+    }
+
     console.log("DEBUG: Incoming request", request.method, request.url);
     try {
       const isApiOrWidget = pathname.startsWith("/api") || pathname.startsWith("/widget");
