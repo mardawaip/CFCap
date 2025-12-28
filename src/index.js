@@ -13,7 +13,7 @@ function checkAccess(request, env) {
   const allowedRaw = (env.ALLOWED || "").replace(/['"]/g, "").split(",");
   const allowedPatterns = allowedRaw.map(s => s.trim()).filter(s => s.length > 0);
 
-  if (allowedPatterns.length === 0) return true;
+  if (allowedPatterns.length === 0) return false; // Strict Block: Missing/Empty ALLOWED blocks everyone
 
   const referer = request.headers.get("Referer");
   const origin = request.headers.get("Origin");
@@ -36,14 +36,61 @@ function checkAccess(request, env) {
   }
 }
 
+// Helper: Get CORS Headers
+function getCorsHeaders(request, env) {
+  const allowedRaw = (env.ALLOWED || "").replace(/['"]/g, "").split(",");
+  const allowedPatterns = allowedRaw.map(s => s.trim()).filter(s => s.length > 0);
+
+  // Default headers
+  const headers = {
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+
+  // If no restrictions defined, we block everyone (do NOT allow *)
+  if (allowedPatterns.length === 0) {
+    return headers;
+  }
+
+  // If restrictions exist, check Origin
+  const origin = request.headers.get("Origin");
+  if (origin) {
+    // We reuse checkAccess logic checks but focused on Origin header for CORS
+    const hostname = new URL(origin).hostname;
+    const isAllowed = allowedPatterns.some(pattern => {
+      if (pattern.startsWith("*.")) {
+        const domain = pattern.slice(2);
+        return hostname.endsWith(domain) && hostname.split('.').length > domain.split('.').length;
+      }
+      return hostname === pattern;
+    });
+
+    if (isAllowed) {
+      headers["Access-Control-Allow-Origin"] = origin;
+      headers["Vary"] = "Origin"; // Important for caching
+    }
+  }
+
+  return headers;
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const pathname = url.pathname;
 
     // ---------------------------------------------------------
-    // 0. ACCESS CONTROL
+    // 0. PREFLIGHT & ACCESS CONTROL
     // ---------------------------------------------------------
+
+    // Handle CORS Preflight
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: getCorsHeaders(request, env)
+      });
+    }
+
     const isApiOrWidget = pathname.startsWith("/api") || pathname.startsWith("/widget");
     if (isApiOrWidget) {
       if (!checkAccess(request, env)) {
@@ -117,33 +164,62 @@ export default {
 
     // API Routes
     if (request.method === "POST") {
+      const corsHeaders = getCorsHeaders(request, env);
+
       if (pathname === "/api/challenge") {
         try {
           const challenge = await cap.createChallenge();
-          return new Response(JSON.stringify(challenge), { headers: { "Content-Type": "application/json" } });
+          return new Response(JSON.stringify(challenge), {
+            headers: {
+              "Content-Type": "application/json",
+              ...corsHeaders
+            }
+          });
         } catch (err) {
-          return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+          return new Response(JSON.stringify({ error: err.message }), {
+            status: 500,
+            headers: corsHeaders
+          });
         }
       }
       if (pathname === "/api/redeem") {
         try {
           const { token, solutions } = await request.json();
           if (!token || !solutions) {
-            return new Response(JSON.stringify({ success: false, error: "Missing parameters" }), { status: 400 });
+            return new Response(JSON.stringify({ success: false, error: "Missing parameters" }), {
+              status: 400,
+              headers: corsHeaders
+            });
           }
           const result = await cap.redeemChallenge({ token, solutions });
-          return new Response(JSON.stringify(result), { headers: { "Content-Type": "application/json" } });
+          return new Response(JSON.stringify(result), {
+            headers: {
+              "Content-Type": "application/json",
+              ...corsHeaders
+            }
+          });
         } catch (err) {
-          return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500 });
+          return new Response(JSON.stringify({ success: false, error: err.message }), {
+            status: 500,
+            headers: corsHeaders
+          });
         }
       }
       if (pathname === "/api/validate") {
         try {
           const { token } = await request.json();
           const result = await cap.validateToken(token);
-          return new Response(JSON.stringify(result), { headers: { "Content-Type": "application/json" } });
+          return new Response(JSON.stringify(result), {
+            headers: {
+              "Content-Type": "application/json",
+              ...corsHeaders
+            }
+          });
         } catch (err) {
-          return new Response(JSON.stringify({ success: false, error: err.message }), { status: 500 });
+          return new Response(JSON.stringify({ success: false, error: err.message }), {
+            status: 500,
+            headers: corsHeaders
+          });
         }
       }
     }
