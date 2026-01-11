@@ -19,6 +19,6 @@ binding = "R2_TOKENS"
 bucket_name = "cap-tokens"
 
 [vars]
-ALLOWED = "*.secops.workers.dev,fast.secw.net,speed.secw.net,*.kalman.co.il"
+ALLOWED = "*.mardawa.id,*.miptech.my.id"
 CHALLENGE_TTL = 300
 TOKEN_TTL = 330
