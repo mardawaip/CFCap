@@ -6,6 +6,38 @@
 import Cap from "@cap.js/server";
 import { createHash } from "node:crypto";
 
+// Helper: Check Basic Auth
+// Returns true if authorized, false otherwise.
+function checkBasicAuth(request, env) {
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader) return false;
+
+  // Check for API Key (Bearer token)
+  if (authHeader.startsWith("Bearer ")) {
+    const apiKey = authHeader.slice(7);
+    const allowedApiKeys = (env.ALLOWED_API_KEYS || "")
+      .split(",")
+      .map(key => key.trim())
+      .filter(key => key.length > 0);
+    return allowedApiKeys.includes(apiKey);
+  }
+
+  // Check for Basic Auth (username:password)
+  if (authHeader.startsWith("Basic ")) {
+    try {
+      const credentials = atob(authHeader.slice(6));
+      const [username, password] = credentials.split(":");
+      const allowedUsername = env.BASIC_AUTH_USERNAME || "";
+      const allowedPassword = env.BASIC_AUTH_PASSWORD || "";
+      return username === allowedUsername && password === allowedPassword && allowedUsername.length > 0;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 // Helper: Check Access Control
 // Returns true if allowed, false otherwise.
 function checkAccess(request, env) {
@@ -214,6 +246,19 @@ export default {
           }
         }
         if (pathname === "/api/validate" || pathname === "/api/verify") {
+          // Check basic auth first if enabled
+          const authRequired = (env.BASIC_AUTH_USERNAME || env.ALLOWED_API_KEYS) ? true : false;
+          if (authRequired && !checkBasicAuth(request, env)) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+              status: 401,
+              headers: {
+                "Content-Type": "application/json",
+                "WWW-Authenticate": 'Basic realm="CFCap API"',
+                ...corsHeaders
+              }
+            });
+          }
+
           try {
             const { token, keepToken } = await request.json();
             // Default to false (Consume/Delete) if not specified (Standard Security).
@@ -234,6 +279,19 @@ export default {
           }
         }
         if (pathname === "/api/delete") {
+          // Check basic auth first if enabled
+          const authRequired = (env.BASIC_AUTH_USERNAME || env.ALLOWED_API_KEYS) ? true : false;
+          if (authRequired && !checkBasicAuth(request, env)) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+              status: 401,
+              headers: {
+                "Content-Type": "application/json",
+                "WWW-Authenticate": 'Basic realm="CFCap API"',
+                ...corsHeaders
+              }
+            });
+          }
+
           try {
             const { token } = await request.json();
             // Validate AND delete (keepToken: false is default, but explicit for clarity)

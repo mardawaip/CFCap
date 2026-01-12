@@ -22,3 +22,10 @@ bucket_name = "cap-tokens"
 ALLOWED = "*.mardawa.id,*.miptech.my.id,*.ahmadapandi68.workers.dev,*.apandi02.com"
 CHALLENGE_TTL = 300
 TOKEN_TTL = 330
+
+# Basic Auth Configuration (optional)
+# Use either Basic Auth (username:password) OR API Keys (Bearer token)
+# Leave empty to disable authentication
+BASIC_AUTH_USERNAME = ""
+BASIC_AUTH_PASSWORD = ""
+ALLOWED_API_KEYS = ""
